@@ -38,10 +38,26 @@ export function useAliasFields(
 	const aliasedFields = computed(() => {
 		const aliasedFields: Record<string, AliasFields> = {};
 
-		const _fields = unref(fields);
+		const _orginal_fields = unref(fields);
+
 		const _collection = unref(collection);
 
-		if (!_fields || _fields.length === 0 || !_collection) return aliasedFields;
+		if (!_orginal_fields || _orginal_fields.length === 0 || !_collection) return aliasedFields;
+
+		// Add base keys for any nested fields that are missing
+		const baseKeys = new Set<string>(_orginal_fields);
+
+		_orginal_fields.forEach(field => {
+			const fieldParts = field.split('.');
+
+			if (fieldParts.length > 1) {
+				const baseKey = fieldParts[0];
+				if (baseKey) baseKeys.add(baseKey); // Ensure the base key is included
+			}
+		});
+
+		// Convert the set back to an array for use in the rest of the function
+		const _fields = Array.from(baseKeys);
 
 		const fieldNameCount = _fields.reduce<Record<string, number>>((acc, field) => {
 			const fieldName = (field.split('.') as [string])[0];
@@ -121,7 +137,7 @@ export function useAliasFields(
 
 		if (!aliasInfo || !aliasInfo.aliased) return get(item, key);
 
-		if (key.includes('.') === false) return get(item, aliasInfo.fieldAlias);
+		if (key.includes('.') === false || aliasInfo.fields.length > 1) return get(item, aliasInfo.fieldAlias);
 
 		return get(item, `${aliasInfo.fieldAlias}.${key.split('.').slice(1).join('.')}`);
 	}
