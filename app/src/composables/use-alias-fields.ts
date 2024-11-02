@@ -119,7 +119,17 @@ export function useAliasFields(
 					.join('.')
 			: key;
 
-		if (!aliasInfo || !aliasInfo.aliased) return get(item, key);
+		if (!aliasInfo) return get(item, key);
+
+		// Handle the case where there are multiple fields in aliasInfo
+		if (aliasInfo.fields.length > 1) {
+			// Return either fieldAlias if aliased, or fieldName if not aliased
+			return aliasInfo.aliased
+				? get(item, aliasInfo.fieldAlias)
+				: get(item, aliasInfo.fieldName);
+		}
+
+		if(!aliasInfo.aliased) return get(item, key)
 
 		if (key.includes('.') === false) return get(item, aliasInfo.fieldAlias);
 

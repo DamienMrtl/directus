@@ -44,6 +44,8 @@ export default {
   `presentation`, `translations` and `group`. Defaults to `standard`.
 - `fields` — If this option is set, the display will fetch relational fields. Can either be an array of fields or a
   function that returns an array of fields.
+- `localFields` - If this option is set, the display will fetch additional fields from the same collection. Can either
+be an array of fields or a function that returns an array of fields.
 
 ## Display Component
 
